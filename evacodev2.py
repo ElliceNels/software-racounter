@@ -26,6 +26,17 @@ for eva in eva_data:
 records.sort(key=lambda record: record[0])
 
 def aggregate_data(desired_country, start_year = None, end_year = None):
+    """Aggregates needed cumulation data for given parameters.
+
+    Args:
+        desired_country (String): Name of country's data to aggregate.
+        start_year (int, optional): Lower bound year of data to show. Defaults to None.
+        end_year (int, optional): Upper bound year of data to show. Defaults to None.
+
+    Returns:
+        dates (List): Date occurances of EVA events
+        cumulative_hours: Cumulative hours of selected EVA events
+    """
     dates = []
     cumulative_hours = []
     total_hours = 0
@@ -46,6 +57,13 @@ def aggregate_data(desired_country, start_year = None, end_year = None):
     return dates, cumulative_hours
 
 def plot_graph(country_name, x, y):
+    """Plots a given cumulative graph.
+
+    Args:
+        country_name (String): Name of country being plotted
+        x (List): x data
+        y (List): y data
+    """
     plt.plot(x, y)
     plt.xlabel("Year")
     plt.ylabel(f"Cumulative EVA duration (hours) {country_name}")
@@ -54,6 +72,13 @@ def plot_graph(country_name, x, y):
     plt.show()
 
 def get_clean_inputs():
+    """Handles input from user for program's operation.
+
+    Returns:
+        country: Name of country results to show 
+        start_year: Lower bound year of data to show
+        end_year: Upper bound year of data to show
+    """
     country = input("Enter country (Or nothing for all countries):")
     start_year = input("Data start year: ").strip()
     end_year = input("Data end year: ").strip()
