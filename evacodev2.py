@@ -25,13 +25,20 @@ for eva in eva_data:
 
 records.sort(key=lambda record: record[0])
 
-def aggregate_data(desired_country):
+def aggregate_data(desired_country, start_year = None, end_year = None):
     dates = []
     cumulative_hours = []
     total_hours = 0
 
+    start_year = records[0][0].year if not start_year else int(start_year)
+    end_year = records[-1][0].year if not end_year else int(end_year)
+
     for date, duration_hours, stored_country in records:
-        if (desired_country == "all countries") or (stored_country == desired_country):
+        if (
+            (date.year >= start_year and date.year <= end_year) and
+            (desired_country == "all countries" or stored_country == desired_country)
+            ):
+
             total_hours += duration_hours
             dates.append(date)
             cumulative_hours.append(total_hours)
@@ -46,7 +53,13 @@ def plot_graph(country_name, x, y):
     plt.savefig(f"cumulative_duration_{country_name}.png")
     plt.show()
 
-country = input("Enter country (Or nothing for all countries):")
-country = country.strip() if country.strip() in countries else "all countries"
-x, y = aggregate_data(country)
+def get_clean_inputs():
+    country = input("Enter country (Or nothing for all countries):")
+    start_year = input("Data start year: ").strip()
+    end_year = input("Data end year: ").strip()
+    country = country.strip() if country.strip() in countries else "all countries"
+    return country, start_year, end_year
+
+country, start, end = get_clean_inputs()
+x, y = aggregate_data(country, start, end)
 plot_graph(country, x, y)
