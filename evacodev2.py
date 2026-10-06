@@ -7,6 +7,7 @@ with open("eva-data.json", "r", encoding="utf-8") as file:
 
 countries = set()
 records = []
+EVA_DURATION_CATEGORIES = {0: "short", 1: "standard", 2: "long"}
 
 for eva in eva_data:
     date_text = eva.get("date")
@@ -44,6 +45,12 @@ def aggregate_data(desired_country, start_year = None, end_year = None):
     start_year = records[0][0].year if not start_year else int(start_year)
     end_year = records[-1][0].year if not end_year else int(end_year)
 
+    occurances = {
+        EVA_DURATION_CATEGORIES[0]: 0, 
+        EVA_DURATION_CATEGORIES[1]: 0, 
+        EVA_DURATION_CATEGORIES[2]: 0
+    }
+
     for date, duration_hours, stored_country in records:
         if (
             (date.year >= start_year and date.year <= end_year) and
@@ -53,8 +60,31 @@ def aggregate_data(desired_country, start_year = None, end_year = None):
             total_hours += duration_hours
             dates.append(date)
             cumulative_hours.append(total_hours)
+            occurances[evaluate_duration_occurances(duration_hours)] += 1
 
-    return dates, cumulative_hours
+    return dates, cumulative_hours, occurances
+
+def evaluate_duration_occurances(duration_hours):
+    """Categorise duration hours based on durations.
+
+    Args:
+        duration_hours (int): Amount of hours spent on an EVA event
+    """
+    if duration_hours < 4:
+        return EVA_DURATION_CATEGORIES[0]
+    elif duration_hours >= 4 and duration_hours < 7:
+        return EVA_DURATION_CATEGORIES[1]
+    elif duration_hours >= 7:
+        return EVA_DURATION_CATEGORIES[2]
+    
+def calculate_occurance_percentages(occurances):
+    """Convert occurances into percentage represenation.
+
+    Args:
+        occurances (dict[str:int]): Categories and how many times they occurred.
+    """
+    total_hours = sum(occurances.values())
+    return {cat: str((occ/total_hours) * 100) + "%" for cat, occ in occurances.items()}
 
 def plot_graph(country_name, x, y):
     """Plots a given cumulative graph.
@@ -86,5 +116,7 @@ def get_clean_inputs():
     return country, start_year, end_year
 
 country, start, end = get_clean_inputs()
-x, y = aggregate_data(country, start, end)
+x, y, occurances = aggregate_data(country, start, end)
 plot_graph(country, x, y)
+print(occurances)
+print(calculate_occurance_percentages(occurances))
